@@ -1,0 +1,26 @@
+{
+  "name": "test-live5",
+  "version": "1.0.0",
+  "description": "",
+  "main": "",
+  "scripts": {
+    "build": "npm-run-all -p -r build-js local",
+    "build-js": "webpack --config webpack.dev.config.js --watch --mode=development",
+    "local": "http-server ./root/ -p 80 -o /public/index.html"
+  },
+  "author": "Jordan Harrison",
+  "license": "ISC",
+  "devDependencies": {
+    "awesome-typescript-loader": "^5.2.1",
+    "babel-core": "^6.26.3",
+    "babel-loader": "^7.1.5",
+    "http-server": "^13.0.2",
+    "npm-run-all": "^4.1.5",
+    "typescript": "^2.9.2",
+    "webpack": "^4.40.2",
+    "webpack-cli": "^3.3.9"
+  },
+  "dependencies": {
+    "pixi.js": "^6.1.3"
+  }
+}

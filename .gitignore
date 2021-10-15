@@ -1,0 +1,5 @@
+node_modules
+*.suo
+*.user
+*.sln.docstates
+root/public/**
