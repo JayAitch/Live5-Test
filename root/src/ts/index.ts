@@ -1,11 +1,9 @@
 import * as PIXI from 'pixi.js'
+window.PIXI = PIXI
+import { GameApplication } from "./managers/managers.game-manager.class";
 
+/** when DOM is ready create game application */
 window.onload = ()=>{
-   	const app = new PIXI.Application({width:400, height: 400})
-  	document.body.appendChild(app.view)
-	var masker = new PIXI.Graphics();
-	masker.beginFill(0xffffff, 1);                                     
-	masker.drawRect(100, 100, 100, 100)
-	masker.endFill();
-	app.stage.addChild(masker);
+   	const app = new GameApplication({width:374, height: 667, backgroundColor: 0xffffff})
+
 }
