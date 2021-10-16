@@ -3,14 +3,26 @@ import { PreloadManager } from "./managers.preload.class"
 import * as PIXI from 'pixi.js'
 import { GAME_CONFIG } from "../config/game-config.constant"
 import { FallingBuilding } from "../classes/game/classes.game.falling-building.class"
-import { getRandomInt } from "../functions/functions.get-random-int.class"
+import { getRandomInt } from "../functions/functions.get-random-int.function"
+import { getResult } from "../functions/functions.get-result.function"
+import { BalanceHandler } from "./managers.balance-handler.class"
+import { StakeAndBalanceDisplay } from "../classes/ui/classes.ui.stake-balance-display.class"
 
 /** main game manager */
 export class GameApplication extends PIXI.Application{
+
+    // list of all buildings created
     private _buildings : FallingBuilding[] = []
+    // dont allow user imputs whilst playing
+    private _inPlay: boolean = false
+    // tracks balance amount and stake
+    private _balancehandler: BalanceHandler
+    // display for stake and balance
+    private _stakeBalanceDisplay: StakeAndBalanceDisplay
 
     constructor(options_:any){
         super(options_)
+        this._balancehandler = new BalanceHandler()
         // add canvas to the page
         document.body.appendChild(this.view)
         const loader = new PreloadManager()
@@ -24,15 +36,20 @@ export class GameApplication extends PIXI.Application{
     /** create any UI objects */
     createUIObjects(){
         // destructure config for button display
-        let {play, luckyDip} = GAME_CONFIG.display.buttons
+        let {play, luckyDip, reset} = GAME_CONFIG.display.buttons
         // create all buttons reuqired
 		let playBtn = new Button(play.asset, play.x, play.y, ()=>{this.playGame()})
 		let luckDipBtn = new Button(luckyDip.asset, luckyDip.x, luckyDip.y, ()=>{this.selectRandomBuildings()})
+        let resetBtn = new Button(reset.asset, reset.x, reset.y, ()=>{this.reset()})
         // enable all buttons
 		playBtn.enable()
 		luckDipBtn.enable()
+        resetBtn.enable()
 
-		this.stage.addChild(playBtn.asset, luckDipBtn.asset)
+		this.stage.addChild(playBtn.asset, luckDipBtn.asset, resetBtn.asset)
+        this._stakeBalanceDisplay  = new StakeAndBalanceDisplay(this._balancehandler)
+
+        this.stage.addChild(...this._stakeBalanceDisplay.assets)
     }
 
     /** generate any game objects required */
@@ -84,17 +101,47 @@ export class GameApplication extends PIXI.Application{
 
     /** place bet and play a round */
     playGame(){
-        // todo check enough balance
+        if(this._inPlay || !this._balancehandler.canAfford()) return
+
         // make sure the player has made enough picks
         if(FallingBuilding._selectedBuildings.length === GAME_CONFIG.pickAmount){
+            this._inPlay = true
             // fake result 
-            const result = [0,1,2,3,4,5]
-            this._buildings.map((bld, index)=>{
-                if(!result.includes(index))
-                    bld.fallOver()
+            getResult(FallingBuilding._selectedBuildings).then(result=>{
+                this._balancehandler.deductStake()
+                this._stakeBalanceDisplay.update()
+                let {balls, win} = result
+                // go through the buildins and knock any down that wernt a win
+                this._buildings.map((bld, index)=>{
+                    if(!balls.includes(index))
+                        bld.fallOver()
+                })
+                if(win) this._balancehandler.increaseBalance(win)
+                // reset the game after 2 seconds
+                setTimeout(()=>{
+                    this._inPlay = false
+                    this.restoreBuildings()
+                    this._stakeBalanceDisplay.update()
+                }, 2000)
             })
+
         }else{
             // todo display error to user
         }
+    }
+
+    // reset game to inital state
+    reset(){
+        // dont allow resets during play
+        if(this._inPlay) return
+        this.restoreBuildings()
+        this._balancehandler.reset()
+        this._stakeBalanceDisplay.update()
+    }
+
+    // restore all buildings
+    restoreBuildings(){
+        FallingBuilding._selectedBuildings = []
+        this._buildings.map(bld=>{ bld.reset()})
     }
 }

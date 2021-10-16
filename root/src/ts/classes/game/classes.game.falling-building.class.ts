@@ -78,4 +78,10 @@ export class FallingBuilding extends Button{
     fallOver(){
         this.asset.visible = false
     }
+
+    /** reset to initial animation position */
+    reset(){
+        this.asset.visible = true
+        this.selected = false
+    }
 }
