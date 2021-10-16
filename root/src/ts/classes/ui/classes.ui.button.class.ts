@@ -5,12 +5,13 @@ export class Button{
     private _icon: PIXI.Sprite
     /** callback to fire when button is pressed */
     private _callBack: ()=> void
-    private _hoverStates = {
+    // display value modifiers for hover states
+    protected _hoverStates = {
         hover: 1.1,
         default: 1,
     }
-
-    private _enabledStates = {
+    // display value modifiers for hover states
+    protected _enabledStates = {
         enabled: 1,
         disabled: 0.5
     }
@@ -63,7 +64,7 @@ export class Button{
     }
 
     /** called by hover in out events */
-    private hover(isHover_: boolean){
+    protected hover(isHover_: boolean){
         const scale = isHover_ ? this._hoverStates.hover: this._hoverStates.default
         this._icon.scale.set(scale)
     }
