@@ -16,7 +16,13 @@ export class Button{
         disabled: 0.5
     }
 
-
+    /**
+     * Create a new button that responds to clicks and hovers
+     * @param key_ - key of sprite being used
+     * @param x_ - horizontal position
+     * @param y_ - vertical position
+     * @param callback_ - function to perform on click
+     */
     constructor(key_:string, x_:number, y_:number, callback_: ()=> void){
         this._callBack = callback_
         this._icon = ASSET_MANAGER.sprite(key_,x_, y_)

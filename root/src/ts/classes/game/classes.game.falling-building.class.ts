@@ -30,8 +30,15 @@ export class FallingBuilding extends Button{
     /** all currently selected buildings */
     static _selectedBuildings = []
 
+    /**
+     * Create a building button to handle input and round display
+     * @param index_ - position of building in the list
+     * @param x_ - horizontal positon
+     * @param y_ - vertical position
+     */
     constructor(index_:number, x_:number, y_:number){
         super("building", x_, y_, ()=>this.buildingClicked())
+        // balls are 1 - 59 so increment value
         const displayNumber = index_ + 1
         this._text =  new PIXI.Text(displayNumber.toString(), {fontSize: 18})
         this._text.anchor.set(0.5)

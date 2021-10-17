@@ -10,6 +10,7 @@ export class BalanceHandler{
     // balance to reset to
     private _originalBalance
 
+    /** creates or returns existing balance handler, only one of these can exist */
     constructor(){
         // make this a singleton
         if(BalanceHandler._instance) return BalanceHandler._instance

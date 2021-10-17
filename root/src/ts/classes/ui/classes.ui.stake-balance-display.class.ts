@@ -13,6 +13,10 @@ export class StakeAndBalanceDisplay{
     /** graphic for the footer background */
     private _footerBG: PIXI.Graphics
 
+    /**
+     * Create footer display for balance and stake
+     * @param balanceHandler_ - singleton that contains ballance and stake data
+     */
     constructor(balanceHandler_: BalanceHandler){
         // destructure configuration
         let {x,y,width,height,colour, balanceText, stakeText} = GAME_CONFIG.display.footer

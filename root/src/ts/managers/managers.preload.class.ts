@@ -4,6 +4,7 @@ import { PreloadPayload } from "../types/types.preload.type";
 /** manager to control preloading assets */
 export class PreloadManager{
     private _assetConfig: PreloadPayload[]
+    /** manager to handle preloading assets */
     constructor(){
         this._assetConfig = ASSETS_CONFIG
     }

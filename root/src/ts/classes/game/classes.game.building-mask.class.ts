@@ -1,8 +1,13 @@
 import { DisplayObject } from "pixi.js"
 import { GAME_CONFIG } from "../../config/game-config.constant"
 
-
+// mask component for buildings
 export class BuildingMask extends PIXI.Graphics{
+    /**
+     * Create a mask the full width of the screen at with the same height as buildings
+     * @param container - parent container to add mask to
+     * @param y_ - y position of the mask
+     */
     constructor(container: PIXI.Container, y_){
         super()
         let {buildings, app} = GAME_CONFIG.display
@@ -12,6 +17,10 @@ export class BuildingMask extends PIXI.Graphics{
         container.addChild(this)
     }
 
+    /**
+     * mask an asset
+     * @param asset_ - asset to be masked
+     */
     public maskAsset(asset_:DisplayObject){
        asset_.mask = this
     }
