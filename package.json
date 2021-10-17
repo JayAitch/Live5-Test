@@ -21,6 +21,7 @@
     "webpack-cli": "^3.3.9"
   },
   "dependencies": {
+    "gsap": "^3.8.0",
     "pixi.js": "^5.3.10"
   }
 }

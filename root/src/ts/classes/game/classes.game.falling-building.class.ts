@@ -1,3 +1,4 @@
+import gsap from "gsap/all";
 import { GAME_CONFIG } from "../../config/game-config.constant";
 import { Button } from "../ui/classes.ui.button.class";
 
@@ -23,6 +24,9 @@ export class FallingBuilding extends Button{
     /** has this building been selected */
     private _selected: boolean = false
 
+    /** save original position for resetting */
+    private _originalPosition: [number,number]
+
     /** all currently selected buildings */
     static _selectedBuildings = []
 
@@ -34,11 +38,12 @@ export class FallingBuilding extends Button{
         this._text.y = 25
         this._text.visible = false
         this._index = index_
+        this._originalPosition = [x_, y_]
         this.asset.addChild(this._text)
     }
 
     /** handle click event on the building */
-    buildingClicked(){
+    private buildingClicked(){
         if(!this._selected){
             if(FallingBuilding._selectedBuildings.length < GAME_CONFIG.pickAmount){
                 this.selected = true
@@ -75,13 +80,31 @@ export class FallingBuilding extends Button{
     }
 
     /** animate the house falling over */
-    fallOver(){
-        this.asset.visible = false
+    public fallOver(): Promise<void>{
+       return new Promise<void>((res_)=>{
+            gsap.to(this.asset, {duration: 0.01, angle:"+=2", repeat:5, yoyo:true})
+            gsap.to(this.asset, {duration: 0.01, x:"+=2", repeat:5, yoyo:true})
+            gsap.to(this.asset, {duration: 1, y:"+=70", onComplete:()=>res_()})
+       })
+
     }
 
     /** reset to initial animation position */
-    reset(){
+    public reset(){
+        this.asset.position.set(this._originalPosition[0],this._originalPosition[1])
         this.asset.visible = true
         this.selected = false
     }
+
+
+    public animateWin(): Promise<void>{
+        if(!this._selected) return
+        return new Promise<void>((res_)=>{
+            gsap.to(this, {scale:1.5, yoyo:true, repeat: 1,repeatDelay:0.2, onComplete:()=>res_()})
+        })
+    }
+
+
+    set scale(val_:number){this.asset.scale.set(val_)}
+    get scale(){return this.asset.scale.x}
 }

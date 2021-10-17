@@ -7,6 +7,7 @@ import { getRandomInt } from "../functions/functions.get-random-int.function"
 import { getResult } from "../functions/functions.get-result.function"
 import { BalanceHandler } from "./managers.balance-handler.class"
 import { StakeAndBalanceDisplay } from "../classes/ui/classes.ui.stake-balance-display.class"
+import { BuildingMask } from "../classes/game/classes.game.building-mask.class"
 
 /** main game manager */
 export class GameApplication extends PIXI.Application{
@@ -62,12 +63,14 @@ export class GameApplication extends PIXI.Application{
         // generate a row and colum as the layout defined by config
         for(let i = 0; rowCount > i; i++){
             let y =  (yGap * i) + startY
+            const mask = new BuildingMask(this.stage, y -25)
             for(let j = 0; colCount > j; j++){
                 // enough building have been made stop making them 
-                if(index + 1 === ballAmt) break
+                if(index === ballAmt) break
                 let x = (xGap * j) + startX
                 // create  new bulding to represent a ball
                 const building = new FallingBuilding(index, x, y)
+                mask.maskAsset(building.asset)
                 index++
                 // make clickable
                 building.enable()
@@ -107,15 +110,28 @@ export class GameApplication extends PIXI.Application{
         if(FallingBuilding._selectedBuildings.length === GAME_CONFIG.pickAmount){
             this._inPlay = true
             // fake result 
-            getResult(FallingBuilding._selectedBuildings).then(result=>{
+            getResult(FallingBuilding._selectedBuildings).then(async result=>{
                 this._balancehandler.deductStake()
                 this._stakeBalanceDisplay.update()
                 let {balls, win} = result
+                // track all the knocking down animations
+                let fallingPromises = []
+                // list of functions to trigger win animations
+                let winAnimations = []
                 // go through the buildins and knock any down that wernt a win
                 this._buildings.map((bld, index)=>{
-                    if(!balls.includes(index))
-                        bld.fallOver()
+                    if(balls.includes(index)){
+                        // add as a promise returning function, dont animate yet
+                        winAnimations.push(()=>bld.animateWin())
+                    }else{
+                        fallingPromises.push(bld.fallOver())
+                    }
+
                 })
+
+                await Promise.all(fallingPromises)
+                await Promise.all(winAnimations.map(func=>func()))
+
                 if(win) this._balancehandler.increaseBalance(win)
                 // reset the game after 2 seconds
                 setTimeout(()=>{
